@@ -4,7 +4,7 @@
 '''
 UNIPROT ID RETRIEVAL
 Retrieves valid Uniprot ids from text files (basically any file that can be opened
-by a text editor) and retrieves, from Uniprot, each respective sequence with the desired
+by a text editor) and retrieves, from Uniprot, each respective sequence in the desired
 output format
 
 DEPENDENCIES:
@@ -23,7 +23,7 @@ import requests
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
 __version__ = '0.2'
-__date__ = '15:58h, 22/06/2016'
+__date__ = '16:05, 22/06/2016'
 __status__ = 'Production'
 
 def extractUniprotIds(fileName):
