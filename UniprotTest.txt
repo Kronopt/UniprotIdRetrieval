@@ -1,0 +1,8 @@
+Examples on several lines: A2BC19, lots of confusing stuff with numbers and fake ids, like p12346
+empty line follows:
+
+more ids: P12345 A0A022YWF9
+and even more ids:  P29358 which has been ‘demerged’ into P68250 and
+P68251
+
+other numbers 34566 #895866 P3rfgty PROTEIN and AESTHETICS
