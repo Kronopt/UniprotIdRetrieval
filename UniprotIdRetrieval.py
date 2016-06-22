@@ -81,7 +81,11 @@ def retrieveSequences(ids, outputFormat):
         Fetching of each sequence file (on the desired output format) for each id
     '''
 
-    for i in ids:
+    print '\n' + outputFormat.upper() + ' sequences'
+    
+    for i in sorted(ids):
+        print i + ':',
+        
         resource = i + '.' + outputFormat
         
         # Uniprot webservice
@@ -89,16 +93,14 @@ def retrieveSequences(ids, outputFormat):
 
         # If response is empty
         if len(sequenceFile.text) == 0:
-            print 'WARNING: ' + i + ' is not available in the designated output format or ' \
-                  + 'does not exist'
+            print 'not available in .' + outputFormat + ' or does not exist'
             continue
 
         # If response is html, then it's invalid
         html = False
         for line in sequenceFile.iter_lines():
             if '<!DOCTYPE html' in line:
-                print 'WARNING: ' + i + ' is not available in the designated output format or ' \
-                      + 'does not exist'
+                print 'not available in .' + outputFormat + ' or does not exist'
                 html = True
             break
 
@@ -107,6 +109,8 @@ def retrieveSequences(ids, outputFormat):
 
         with open(resource, "wb") as fileName:
             [fileName.write(line + '\n') for line in sequenceFile.iter_lines()]
+
+        print 'ok'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Uniprot id retrieval tool')
