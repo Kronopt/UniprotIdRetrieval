@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!python2
 # coding: utf-8
 
 """
@@ -9,7 +9,7 @@ output format
 
 DEPENDENCIES:
     - Python 2.7
-    - requests library (type 'pip install requests' on the command line to install)
+    - requests library
 
 HOW TO RUN:
     Through the command line.
