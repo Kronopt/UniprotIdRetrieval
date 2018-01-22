@@ -12,8 +12,14 @@ DEPENDENCIES:
     - requests library
 
 HOW TO RUN:
-    Through the command line.
-    For help call the script with the -h parameter
+    Through the command line:
+	
+    UniprotIdRetrieval.py file [-f] [-h]
+	
+	- 'file' is the name of the file to search for IDs, and is the only required argument
+	- '-f, --format' is the format of the output file (txt, xml, fasta, rdf, gff or tab),
+	  and defaults to 'fasta'
+	- '-h' shows the help text
 """
 
 import argparse
@@ -22,9 +28,8 @@ import requests
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
-__version__ = '0.2'
-__date__ = '19:00, 17/10/2016'
-__status__ = 'Production'
+__version__ = '1.0'
+__status__ = 'Finished'
 
 
 def extract_uniprot_ids(file_name):
@@ -119,8 +124,10 @@ def retrieve_sequences(ids_, output_format):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Uniprot id retrieval tool')
 
-    parser.add_argument('file', metavar='file', help='File path or name')
-    parser.add_argument('format', choices=['txt', 'xml', 'fasta', 'rdf', 'gff', 'tab'],
+    parser.add_argument('file', metavar='file', help='File path')
+    parser.add_argument('-f', '--format',
+						choices=['txt', 'xml', 'fasta', 'rdf', 'gff', 'tab'],
+						default='fasta',
                         help='Output format')
 
     parser = parser.parse_args()
