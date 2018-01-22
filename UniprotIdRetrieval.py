@@ -16,9 +16,9 @@ HOW TO RUN:
 	
     UniprotIdRetrieval.py file [-f] [-h]
 	
-	- 'file' is the name of the file to search for IDs, and is the only required argument
-	- '-f, --format' is the format of the output file (txt, xml, fasta, rdf, gff or tab),
-	  and defaults to 'fasta'
+	- 'file' is the name of the file to search for IDs (only required argument)
+	- '-f, --format' is the format of the output file
+	  (one of: txt, xml, fasta, rdf, gff or tab), defaults to 'fasta'
 	- '-h' shows the help text
 """
 
