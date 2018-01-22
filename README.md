@@ -1,5 +1,5 @@
 # UniprotIdRetrieval
-Retrieves valid Uniprot ids from text files (basically any file that can be opened by a text editor) and downloads, from Uniprot, each respective sequence in the desired output format
+Finds valid Uniprot ids in text files and retrieves each respective sequence in the desired output format from Uniprot
 
 #### Dependencies
 * Python 2.7
