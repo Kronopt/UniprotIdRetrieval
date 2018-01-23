@@ -19,7 +19,7 @@ HOW TO RUN:
 	- 'file' is the name of the file to search for IDs (only required argument)
 	- '-f, --format' is the format of the output files
 	  (txt, xml, fasta, rdf, gff or tab), defaults to 'fasta'
-	- '-h' shows the help text
+	- '-h, --help' shows the help text
 """
 
 import argparse
