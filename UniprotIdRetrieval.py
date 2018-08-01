@@ -3,23 +3,23 @@
 
 """
 UNIPROT ID RETRIEVAL
-Retrieves valid Uniprot ids from text files (basically any file that can be opened
-by a text editor) and retrieves, from Uniprot, each respective sequence in the desired
-output format
+Downloads protein sequences from Uniprot, in the desired output format, based on the given ids (either passed as
+arguments or identified in a file)
 
 DEPENDENCIES:
     - Python 2.7
-    - requests library
+    - requests
 
 HOW TO RUN:
     Through the command line:
-	
-    UniprotIdRetrieval.py file [-f] [-h]
-	
-	- 'file' is the name of the file to search for IDs (only required argument)
-	- '-f, --format' is the format of the output files
-	  (txt, xml, fasta, rdf, gff or tab), defaults to 'fasta'
-	- '-h, --help' shows the help text
+
+    UniprotIdRetrieval.py [-h] (-f <file> | -i <id ...>) [-fo {fasta, gff, tab, txt, rdf, xml}]
+
+    - '-h, --help' shows the help text
+    - '-f, --file' takes a file path to search for ids
+    - '-i, --ids' takes 1 or more ids
+    - '-fo, --format' defines the output format of downloaded files (fasta, gff, tab, txt, rdf or xml),
+      defaults to 'fasta'
 """
 
 import argparse
@@ -28,32 +28,29 @@ import requests
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
-__version__ = '1.0'
+__version__ = '2.0'
 __status__ = 'Finished'
+
+
+# http://www.uniprot.org/help/accession_numbers
+UNIPROTREGEX = ("[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9][A-Z][A-Z0-9]{2}[0-9]"
+                + "|[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]|[OPQ][0-9][A-Z0-9]{3}[0-9]")
 
 
 def extract_uniprot_ids(file_name):
     """
-    Identifies valid uniprot accession numbers using a regular expression defined on the
-    uniprot website
+    Identifies valid uniprot accession numbers using a regular expression defined on the uniprot website
 
-    PARAMETERS:
-        file_name : str
-            Represents a path/file name of the file to parse
+    Parameters
+    ----------
+    file_name: str
+        Path/file name of the file to parse
 
-    REQUIRES:
-        File must be a plain text type of file (no extension, .txt, .csv, .tab, etc)
-
-    ENSURES:
-        Set with the indentified uniprot accession numbers
+    Returns
+    -------
+    Set with the indentified uniprot accession numbers
     """
-
-    # http://www.uniprot.org/help/accession_numbers
-    uniprot_regex = re.compile(
-        "[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9][A-Z][A-Z0-9]{2}[0-9]"
-        + "|[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]|[OPQ][0-9][A-Z0-9]{3}[0-9]"
-    )
-
+    uniprot_regex = re.compile(UNIPROTREGEX)
     uniprot_ids = []
 
     try:
@@ -65,8 +62,7 @@ def extract_uniprot_ids(file_name):
             uniprot_ids = filter(lambda x: len(x) in [6, 10], uniprot_ids)
 
     except IOError, e:
-        print 'Error with "' + e.filename + '" file:'
-        print e.strerror
+        print 'Error with "' + e.filename + '" file: ' + e.strerror
 
     finally:
         return set(uniprot_ids)
@@ -74,63 +70,71 @@ def extract_uniprot_ids(file_name):
 
 def retrieve_sequences(ids_, output_format):
     """
-    Retrieves a sequence file for each id in the desired output format
+    Searches for a protein sequence for each id and downloads it (if found) in the desired output format
 
-    PARAMETERS:
-        ids_ : set / list
-            Represents a group of unique valid uniprot ids
-        output_format : str
-            Represents an output format
+    Parameters
+    ----------
+        ids_: set / list
+            Uniprot ids
+        output_format: str
+            Output format
 
-    REQUIRES:
-        - ids_ complying with uniprot standards for ids
-        - Valid output_format
-
-    ENSURES:
-        Fetching of each sequence file (on the desired output format) for each id
+    Returns
+    -------
+        Fetching of each protein sequence file (on the desired output format) for each id
     """
+    if len(ids_) > 0:
+        print '\n' + output_format.upper() + ' sequences'
 
-    print '\n' + output_format.upper() + ' sequences'
+        for i in sorted(ids_):
+            print i + ':',
 
-    for i in sorted(ids_):
-        print i + ':',
+            resource = i + '.' + output_format
 
-        resource = i + '.' + output_format
+            # Uniprot webservice
+            sequence_file = requests.get('http://www.uniprot.org/uniprot/' + resource)
 
-        # Uniprot webservice
-        sequence_file = requests.get('http://www.uniprot.org/uniprot/' + resource)
-
-        # If response is empty
-        if len(sequence_file.text) == 0:
-            print 'not available in .' + output_format + ' or does not exist'
-            continue
-
-        # If response is html, then it's invalid
-        html = False
-        for line in sequence_file.iter_lines():
-            if '<!DOCTYPE html' in line:
+            # If response is empty
+            if len(sequence_file.text) == 0:
                 print 'not available in .' + output_format + ' or does not exist'
-                html = True
-            break
+                continue
 
-        if html:
-            continue
+            # If response is html, then it's invalid
+            else:
+                html = False
+                for line in sequence_file.iter_lines():
+                    if '<!DOCTYPE html' in line:
+                        print 'not available in .' + output_format + ' or does not exist'
+                        html = True
+                    break
 
-        with open(resource, "wb") as file_name:
-            [file_name.write(line + '\n') for line in sequence_file.iter_lines()]
+                if html:
+                    continue
 
-        print 'ok'
+            with open(resource, "wb") as file_name:
+                [file_name.write(line + '\n') for line in sequence_file.iter_lines()]
+
+            print 'ok'
+
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Uniprot id retrieval tool')
+    parser = argparse.ArgumentParser(description='Uniprot id retrieval tool. Searches Uniprot for protein sequences and'
+                                                 ' downloads them. Either uses the ids passed as arguments (-i, --ids) '
+                                                 'OR ids found in a file (-f, --file)')
 
-    parser.add_argument('file', metavar='file', help='File path')
-    parser.add_argument('-f', '--format',
-						choices=['txt', 'xml', 'fasta', 'rdf', 'gff', 'tab'],
-						default='fasta',
-                        help='Output format')
+    file_or_ids = parser.add_mutually_exclusive_group(required=True)
+    file_or_ids.add_argument('-f', '--file', metavar='<file>', help='file path')
+    file_or_ids.add_argument('-i', '--ids', nargs='+', metavar='<id>', help='uniprot ids')
+
+    parser.add_argument('-fo', '--format',
+                        choices=['fasta', 'gff', 'tab', 'txt', 'rdf', 'xml'],
+                        default='fasta',
+                        help='output format (defaults to fasta)')
 
     parser = parser.parse_args()
 
-    ids = extract_uniprot_ids(parser.file)
-    retrieve_sequences(ids, parser.format)
+    if parser.ids is None:
+        ids = extract_uniprot_ids(parser.file)
+        retrieve_sequences(ids, parser.format)
+    else:
+        retrieve_sequences(set(parser.ids), parser.format)
