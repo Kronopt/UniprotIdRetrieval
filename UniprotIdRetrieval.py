@@ -25,6 +25,7 @@ HOW TO RUN:
 import argparse
 import re
 import requests
+import time
 
 __author__ = 'Pedro HC David, https://github.com/Kronopt'
 __credits__ = ['Pedro HC David']
@@ -99,6 +100,10 @@ def retrieve_sequences(ids_, output_format):
                 print 'not available in .' + output_format + ' or does not exist'
                 continue
 
+            # http not 200
+            elif sequence_file.status_code != 200:
+                print('http error ' + str(sequence_file.status_code))
+
             # If response is html, then it's invalid
             else:
                 html = False
@@ -115,6 +120,7 @@ def retrieve_sequences(ids_, output_format):
                 [file_name.write(line + '\n') for line in sequence_file.iter_lines()]
 
             print 'ok'
+            time.sleep(0.33)  # follow max of 3 requests per second rule of Uniprot
 
 
 if __name__ == '__main__':
